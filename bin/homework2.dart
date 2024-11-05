@@ -65,11 +65,12 @@ void main() {
     final regExp = RegExp(r'^[a-zA-Z가-힣]+$'); // 예외처리 정규표현식
     if (regExp.hasMatch(getCharacterName!)) {
       //올바른 형식의 입력값이라면
-      game.startGame(); // 게임 실행 후
       break; // 루프 탈출
     } else {
       // 그 외 아래의 오류 메세지 출력 후 재입력 요청
       print('유효하지 않은 아이디 입니다. 특수문자 및 숫자를 제외한 한영문만 입력해주세요');
     }
   }
+
+  game.startGame(); // 게임 실행
 }
