@@ -57,19 +57,19 @@ void main() {
   Game game = Game();
   Random random = Random(); // dart math 의 랜덤 생성 클래스 선언
 
-  // 캐릭터 이름 입력
+  // 캐릭터 이름 설정 요청
   while (true) {
-    print('게임을 시작하기 위해 아이디를 설정해 주세요');
-    String? getCharacterName = stdin.readLineSync(); // 사용자 캐릭터 이름 입력 받기
-    final regExp = RegExp(r'^[a-zA-Z가-힣]+$'); // 특수문자 및 숫자 제외한 영한 대소문자만 입력 가능
-    try {
-      if (regExp.hasMatch(getCharacterName!)) {
-        //올바르게 입력 한다면
-        game.startGame(); // 게임 실행
-        break; // 루프 탈출
-      }
-    } catch (e) {
-      print('유효하지 않은 아이디 입니다. 특수문자 및 숫자를 제외한 한영 대소문자만 입력해주세요');
+    // 루프 시작
+    stdout.write('게임을 시작하기 위해 아이디를 설정해 주세요: ');
+    String? getCharacterName = stdin.readLineSync(); // 사용자 입력 받기
+    final regExp = RegExp(r'^[a-zA-Z가-힣]+$'); // 예외처리 정규표현식
+    if (regExp.hasMatch(getCharacterName!)) {
+      //올바른 형식의 입력값이라면
+      game.startGame(); // 게임 실행 후
+      break; // 루프 탈출
+    } else {
+      // 그 외 아래의 오류 메세지 출력 후 재입력 요청
+      print('유효하지 않은 아이디 입니다. 특수문자 및 숫자를 제외한 한영문만 입력해주세요');
     }
   }
 }
