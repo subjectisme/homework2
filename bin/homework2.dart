@@ -13,7 +13,7 @@ class Game {
     getRandomMonster(); // 1.랜덤으로 몬스터 불러오기
     print("새로운 몬스터가 나타났습니다!"); // 2.몬스터 등장 메시지
     monster.showStatus(); // 3.불러온 몬스터의 상태 노출
-    battle();
+    battle(); // 4. 전투 진행
   }
 
   // 전투 진행
@@ -43,7 +43,7 @@ class Game {
   void getRandomMonster() {
     Random random = Random(); // 랜덤 클래스 선언
     monster = monstersList[
-        random.nextInt(monstersList.length)]; // 몬스터리스트에서 랜덤으로 몬스터 데려오기
+        random.nextInt(monstersList.length)]; // 몬스터 리스트에서 랜덤으로 몬스터 데려오기
   }
 
   // 캐릭터 데이터 불러옴
@@ -134,7 +134,7 @@ class Monster {
 
   // 몬스터의 현재 체력, 공격력을 턴마다 출력하기 위한 함수
   void showStatus() {
-    print("dev - 체력: $health, 공격력: $attack");
+    print("$name - 체력: $health, 공격력: $attack");
   }
 }
 
@@ -154,7 +154,7 @@ class Character {
   void defend() {}
   // 캐릭터의 현재 체력, 공격력, 방어력을 턴마다 출력하기 위한 함수
   void showStatus() {
-    print("dev - 체력: $health, 공격력: $attack, 방어력: $defense");
+    print("$name - 체력: $health, 공격력: $attack, 방어력: $defense");
   }
 }
 
