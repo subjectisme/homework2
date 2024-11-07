@@ -18,20 +18,55 @@ class Game {
 
   // 전투 진행
   void battle() {
-    print("dev의 턴");
     while (true) {
       // 루프 시작
-      stdout.write('행동을 선택하세요(1:공격 2:방어): ');
+      print('${character.name}의 턴');
+      stdout.write('행동을 선택하세요(1: 공격 2: 방어): ');
       String? inputNumber = stdin.readLineSync(); // 사용자 입력 받기
 
       switch (inputNumber) {
         case '1':
-          character.attackMonster(monster);
-
-          break;
+          print(
+              '${character.name}이(가) ${monster.name}에게  ${character.attack}의 데미지를 입혔습니다.');
+          character.attackMonster(monster, character);
+          if (monster.health <= 0) {
+            print('${monster.name}을 물리쳤습니다!');
+            monstersList.remove(monster);
+            return;
+          } else if (monster.health > 0) {
+            print('${monster.name}의 턴');
+            print(
+                '${monster.name}이(가) ${character.name}에게  ${monster.attack}의 데미지를 입혔습니다.');
+            monster.attackCharacter(monster, character);
+            if (character.health > 0) {
+              character.showStatus(); // 생성된 캐릭터 상태 노출
+              monster.showStatus(); // 생성된 몬스터 상태 노출
+              break;
+            } else if (character.health <= 0) {
+              print('${character.name}의 체력이 0이 되어 게임에서 패배하셨습니다.');
+              saveLoseResult(character);
+              return;
+            }
+          }
 
         case '2':
-          break;
+          print(
+              '${character.name}이(가) 방어 태세를 취하여 ${monster.attack}만큼 체력을 얻었습니다.');
+          character.defend(monster, character);
+
+          print('${monster.name}의 턴');
+          monster.attackCharacter(monster, character);
+          print(
+              '${monster.name}이(가) ${character.name}에게  ${monster.attack}의 데미지를 입혔습니다.');
+          if (character.health > 0 && monster.health > 0) {
+            character.showStatus(); // 생성된 캐릭터 상태 노출
+            monster.showStatus(); // 생성된 몬스터 상태 노출
+            break;
+          } else {
+            print('${character.name}의 체력이 0이 되어 게임에서 패배하셨습니다.');
+            saveLoseResult(character);
+            return;
+          }
 
         default:
           print('1 또는 2 중에 선택하여 입력해주세요');
@@ -118,6 +153,46 @@ class Game {
       }
     }
   }
+
+  void saveVictoryResult(character) {
+    while (true) {
+      // 루프 시작
+      stdout.write('결과를 저장하시겠습니까? (y/n): ');
+      String? inputValue = stdin.readLineSync();
+      switch (inputValue) {
+        case 'y':
+          final file = File('result.txt'); // File 객체 생성 후 텍스트 파일 접근
+          String result = '${character.name},${character.health},Vicotry';
+          file.writeAsStringSync(result);
+          return;
+        case 'n':
+          return;
+        default:
+          print('y 또는 n 중에 선택하여 입력해주세요');
+      }
+      // 사용자 입력 받기
+    }
+  }
+
+  void saveLoseResult(character) {
+    while (true) {
+      // 루프 시작
+      stdout.write('결과를 저장하시겠습니까? (y/n): ');
+      String? inputValue = stdin.readLineSync();
+      switch (inputValue) {
+        case 'y':
+          final file = File('result.txt'); // File 객체 생성 후 텍스트 파일 접근
+          String result = '${character.name},${character.health},Lose';
+          file.writeAsStringSync(result);
+          return;
+        case 'n':
+          return;
+        default:
+          print('y 또는 n 중에 선택하여 입력해주세요');
+      }
+      // 사용자 입력 받기
+    }
+  }
 }
 
 // 몬스터 클래스
@@ -130,7 +205,10 @@ class Monster {
   Monster(this.name, this.health, this.attack, this.defense);
 
   // 캐릭터에게 공격
-  attackCharacter(Character character()) {}
+  attackCharacter(Monster monster, Character character) {
+    int number = character.defense - monster.attack;
+    character.health = character.health - number.abs();
+  }
 
   // 몬스터의 현재 체력, 공격력을 턴마다 출력하기 위한 함수
   void showStatus() {
@@ -149,9 +227,15 @@ class Character {
   Character(this.name, this.health, this.attack, this.defense);
 
   // 몬스터 공격 행동
-  void attackMonster(Monster monster) {}
-  // 방어 시 특정 행동 (몬스터가 입힌 데미지만큼 캐릭터 체력 상승)
-  void defend() {}
+  void attackMonster(Monster monster, Character character) {
+    monster.health = monster.health - character.attack;
+  }
+
+  // 방어 시 특정 행동 (몬스터 데미지만큼 캐릭터 체력 상승)
+  void defend(Monster monster, Character character) {
+    character.health = character.health + monster.attack;
+  }
+
   // 캐릭터의 현재 체력, 공격력, 방어력을 턴마다 출력하기 위한 함수
   void showStatus() {
     print("$name - 체력: $health, 공격력: $attack, 방어력: $defense");
@@ -166,5 +250,9 @@ void main() {
   // 2.몬스터 생성 후 리스트 내 추가
   game.loadMonsterStats();
   // 3.게임 시작
-  game.startGame();
+  while (game.monstersList.isNotEmpty) {
+    game.startGame();
+  }
+  print('축하합니다! 모든 몬스터를 물리쳤습니다.');
+  game.saveVictoryResult(game.character);
 }
