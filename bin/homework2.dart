@@ -1,75 +1,83 @@
 import 'dart:math';
 import 'dart:io';
 
+/// 게임 클래스
 class Game {
-  late Character character; // Character 타입으로 선언
-  late Monster monster; // Monster 타입으로 선언
+  late Character character; // Character 타입 선언
+  late Monster monster; // Monster 타입 선언
   List<Monster> monstersList = []; // 몬스터 리스트
   int get leftMonsters => // 남은 몬스터 수 확인 변수
       monstersList.length; // getter 를 사용하여 리스트 길이가 변할때 직접 참조 가능
 
   // 게임 시작
   void startGame() {
-    getRandomMonster(); // 1.랜덤으로 몬스터 불러오기
-    print("새로운 몬스터가 나타났습니다!"); // 2.몬스터 등장 메시지
-    monster.showStatus(); // 3.불러온 몬스터의 상태 노출
-    battle(); // 4. 전투 진행
+    getRandomMonster(); // 랜덤으로 몬스터 불러오기
+    print("새로운 몬스터가 나타났습니다!"); // 몬스터 등장 메시지
+    monster.showStatus(); // 불러온 몬스터의 상태 노출
+    battle(); // 전투 진행
   }
 
   // 전투 진행
   void battle() {
+    //루프시작
     while (true) {
-      // 루프 시작
-      print('${character.name}의 턴');
+      print('${character.name}의 턴'); // 사용자 턴 메세지
       stdout.write('행동을 선택하세요(1: 공격 2: 방어): ');
       String? inputNumber = stdin.readLineSync(); // 사용자 입력 받기
-
+      // 스위치 구문 시작
       switch (inputNumber) {
+        // 사용자가 1번을 선택하였다면 (공격)
         case '1':
           print(
-              '${character.name}이(가) ${monster.name}에게  ${character.attack}의 데미지를 입혔습니다.');
-          character.attackMonster(monster, character);
+              '${character.name}이(가) ${monster.name}에게  ${character.attack}의 데미지를 입혔습니다.'); // 캐릭터의 공격 메세지
+          character.attackMonster(monster, character); // 캐릭터의 공격
           if (monster.health <= 0) {
-            print('${monster.name}을 물리쳤습니다!');
-            monstersList.remove(monster);
-            return;
+            // 만약 몬스터의 체력이 0 이하로 떨어진다면
+            print('${monster.name}을 물리쳤습니다!'); // 몬스터 사망 메세지
+            monstersList.remove(monster); //해당 몬스터 리스트에서 제거
+            return; // 루프탈출
           } else if (monster.health > 0) {
-            print('${monster.name}의 턴');
+            // 만약 몬스터가 아직 살아있다면
+            print('${monster.name}의 턴'); // 몬스터 턴
             print(
-                '${monster.name}이(가) ${character.name}에게  ${monster.attack}의 데미지를 입혔습니다.');
-            monster.attackCharacter(monster, character);
+                '${monster.name}이(가) ${character.name}에게  ${monster.attack}의 데미지를 입혔습니다.'); // 몬스터의 공격 메세지
+            monster.attackCharacter(monster, character); // 몬스터의 공격
             if (character.health > 0) {
+              // 캐릭터의 체력이 0 초과한다면
               character.showStatus(); // 생성된 캐릭터 상태 노출
               monster.showStatus(); // 생성된 몬스터 상태 노출
               break;
             } else if (character.health <= 0) {
-              print('${character.name}의 체력이 0이 되어 게임에서 패배하셨습니다.');
-              saveLoseResult(character);
-              return;
+              // 캐릭터의 체력이 0 이하라면
+              print('${character.name}의 체력이 0이 되어 게임에서 패배하셨습니다.'); // 패배 메세지 노출
+              saveLoseResult(character); // 패배 결과 기록 여부 요청
+              return; // 루프 종료
             }
           }
-
+        // 사용자가 2번을 선택하였다면 (방어)
         case '2':
           print(
-              '${character.name}이(가) 방어 태세를 취하여 ${monster.attack}만큼 체력을 얻었습니다.');
-          character.defend(monster, character);
+              '${character.name}이(가) 방어 태세를 취하여 ${monster.attack}만큼 체력을 얻었습니다.'); // 캐릭터 방어 메세지
+          character.defend(monster, character); // 캐릭터의 방어
 
-          print('${monster.name}의 턴');
-          monster.attackCharacter(monster, character);
+          print('${monster.name}의 턴'); // 몬스터 턴
+          monster.attackCharacter(monster, character); // 몬스터의 공격
           print(
-              '${monster.name}이(가) ${character.name}에게  ${monster.attack}의 데미지를 입혔습니다.');
+              '${monster.name}이(가) ${character.name}에게  ${monster.attack}의 데미지를 입혔습니다.'); // 몬스터 공격 메세지
           if (character.health > 0 && monster.health > 0) {
+            // 캐릭터와 몬스터 둘다 살아있다면
             character.showStatus(); // 생성된 캐릭터 상태 노출
             monster.showStatus(); // 생성된 몬스터 상태 노출
             break;
           } else {
-            print('${character.name}의 체력이 0이 되어 게임에서 패배하셨습니다.');
-            saveLoseResult(character);
-            return;
+            // 캐릭터의 체력이 0이하라면 (몬스터의 체력이 변동될 일은 없기 때문에)
+            print('${character.name}의 체력이 0이 되어 게임에서 패배하셨습니다.'); // 캐릭터 사망 메세지
+            saveLoseResult(character); //패배 결과 기록 여부 요청
+            return; // 루프 종료
           }
 
-        default:
-          print('1 또는 2 중에 선택하여 입력해주세요');
+        default: // 1 또는 2를 제외한 입력이라면 루프 재시작
+          print('1 또는 2 중에 선택하여 입력해주세요'); // 오류 메세지
       }
     }
   }
@@ -154,19 +162,24 @@ class Game {
     }
   }
 
+  // 게임 승리 결과 저장
   void saveVictoryResult(character) {
     while (true) {
       // 루프 시작
-      stdout.write('결과를 저장하시겠습니까? (y/n): ');
+      stdout.write('결과를 저장하시겠습니까? (y/n): '); // 사용자 입력 받기
       String? inputValue = stdin.readLineSync();
       switch (inputValue) {
+        // y 선택 시
         case 'y':
           final file = File('result.txt'); // File 객체 생성 후 텍스트 파일 접근
-          String result = '${character.name},${character.health},Vicotry';
-          file.writeAsStringSync(result);
-          return;
+          String result =
+              '${character.name},${character.health},Vicotry'; // (캐릭터 이름, 캐릭터 체력, 승리)
+          file.writeAsStringSync(result); // 기록
+          return; // 루프 종료
+        // n 선택 시
         case 'n':
-          return;
+          return; // 루프 종료
+        // 오류 메세지 노출
         default:
           print('y 또는 n 중에 선택하여 입력해주세요');
       }
@@ -174,19 +187,24 @@ class Game {
     }
   }
 
+  // 게임 실패 결과 저장
   void saveLoseResult(character) {
+    // 루프 시작
     while (true) {
-      // 루프 시작
-      stdout.write('결과를 저장하시겠습니까? (y/n): ');
+      stdout.write('결과를 저장하시겠습니까? (y/n): '); // 사용자 입력 받기
       String? inputValue = stdin.readLineSync();
       switch (inputValue) {
+        // y 선택 시
         case 'y':
           final file = File('result.txt'); // File 객체 생성 후 텍스트 파일 접근
-          String result = '${character.name},${character.health},Lose';
-          file.writeAsStringSync(result);
+          String result =
+              '${character.name},${character.health},Lose'; // (캐릭터 이름, 캐릭터 체력, 패배)
+          file.writeAsStringSync(result); //기록
           return;
+        // n 선택 시
         case 'n':
-          return;
+          return; // 루프 종료
+        // 오류 메세지 노출
         default:
           print('y 또는 n 중에 선택하여 입력해주세요');
       }
@@ -249,10 +267,11 @@ void main() {
   game.loadCharacterStats();
   // 2.몬스터 생성 후 리스트 내 추가
   game.loadMonsterStats();
-  // 3.게임 시작
+  // 3.게임 시작 (리스트 안 몬스터가 0이 될때까지)
   while (game.monstersList.isNotEmpty) {
     game.startGame();
   }
   print('축하합니다! 모든 몬스터를 물리쳤습니다.');
+  // 승리 기록 여부 요청
   game.saveVictoryResult(game.character);
 }
